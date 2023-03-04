@@ -1,0 +1,2 @@
+Flask==2.2.2
+Markdown==3.4.1
