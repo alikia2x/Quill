@@ -18,9 +18,6 @@ app = Flask(__name__)
 def page_not_found(e):
     return render_template('404.html'),404
 
-# 设置每页显示的文章数
-POSTS_PER_PAGE = 10
-
 class DelInlineProcessor(InlineProcessor):
     def handleMatch(self, m, data):
         el = etree.Element('del')
@@ -54,6 +51,7 @@ def get_config(key):
         return None
     return value
 
+POSTS_PER_PAGE = get_config("posts_per_page")
 
 def get_file_create_time(path, style="%Y-%m-%d"):
     time_array = time.localtime(os.stat(path).st_mtime)
@@ -61,7 +59,7 @@ def get_file_create_time(path, style="%Y-%m-%d"):
     return styled_time
 
 
-@app.route("/<filename>")
+@app.route("/<path:filename>")
 def show_post(filename):
     # 拼接文件路径，添加.md扩展名
     file_path = "posts/" + filename + ".md"
@@ -112,6 +110,5 @@ def show_home():
 
 # 运行flask应用
 if __name__ == "__main__":
-    # 设置host为0.0.0.0，表示监听所有ip的请求
-    # 设置port为80，表示使用80端口
-    app.run(host="0.0.0.0", port=80, debug=True)
+    from waitress import serve
+    serve(app, host="127.0.0.1", port=7000)
