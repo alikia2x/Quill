@@ -83,8 +83,8 @@ def show_post(filename):
 def show_home():
     # 获取URL参数中的page值，默认为1
     page = request.args.get("page", 1, type=int)
-    # 获取posts目录下所有的Markdown文件，并按照创建时间排序
-    posts = sorted(glob.glob("posts/*.md"), key=os.path.getctime, reverse=True)
+    # 获取posts目录下所有的Markdown文件，并按照修改时间排序
+    posts = sorted(glob.glob("posts/*.md"), key=os.path.getmtime, reverse=True)
     # 计算总共有多少页
     total_pages = (len(posts) - 1) // POSTS_PER_PAGE + 1
     # 如果page值超出范围，返回404错误
