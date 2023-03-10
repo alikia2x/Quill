@@ -2,6 +2,7 @@
 # 导入所需的库
 from flask import Flask, render_template, abort, request
 from markdown.inlinepatterns import InlineProcessor
+from markdown.blockprocessors import BlockProcessor
 from markdown.extensions import Extension
 import xml.etree.ElementTree as etree
 import os
@@ -10,6 +11,11 @@ import glob
 import markdown
 import re
 import json
+from compressor import compress
+
+compress()
+
+fenced_code_pattern = re.compile(r"^(`{3,})(\w*)\n(.*?)\n(`{3,})$", re.MULTILINE | re.DOTALL)
 
 # 创建flask应用对象
 app = Flask(__name__)
@@ -58,6 +64,14 @@ def get_file_create_time(path, style="%Y-%m-%d"):
     styled_time = time.strftime(style, time_array)
     return styled_time
 
+def replace_fenced_code(match):
+    start = match.group(1) # 开始的反引号
+    code = match.group(3) # 代码内容
+    end = match.group(4) # 结束的反引号
+    # 添加class属性到开始的反引号后面
+    new_start = start + " {class=\"fenced_code\"}"
+    # 返回替换后的字符串
+    return "\n".join([new_start, code, end])
 
 @app.route("/<path:filename>")
 def show_post(filename):
@@ -68,9 +82,11 @@ def show_post(filename):
     # 打开文件，读取内容
     with open(file_path, "r", encoding='utf-8') as f:
         content = f.read()
+
+    # 预处理，用于解决围栏代码块的样式问题
+    content = fenced_code_pattern.sub(replace_fenced_code, content)
     # 使用markdown模块将内容转换为html
-    html = markdown.markdown(content, extensions=[
-                             "markdown.extensions.extra","markdown.extensions.sane_lists", DelExtension()])
+    html = markdown.markdown(content, extensions=["markdown.extensions.sane_lists", "markdown.extensions.extra", DelExtension()])
     title = get_article_title(file_path)
     date = get_file_create_time(file_path)
     output = render_template(
@@ -110,5 +126,6 @@ def show_home():
 
 # 运行flask应用
 if __name__ == "__main__":
-    from waitress import serve
-    serve(app, host="127.0.0.1", port=7000)
+    app.run(host="0.0.0.0", port=80, debug=True)
+    # from waitress import serve
+    # serve(app, host="127.0.0.1", port=7000)
