@@ -221,8 +221,12 @@ def show_post(filename):
     output = render_template(
         "article.html", content=html, title=title, date=date, filename=filename, main_title=get_config("title"), links=get_config("links"), copyright=get_config("copyright"))
 
+    if get_config("use_proxy"):
+        ip=request.headers.get("X-Forwarded-For")
+    else:
+        ip=request.remote_addr
     import multiprocessing
-    log_process=multiprocessing.Process(target=write_log, args=(filename,request.remote_addr,request.user_agent.string,))
+    log_process=multiprocessing.Process(target=write_log, args=(filename,ip,request.user_agent.string,))
     log_process.start()
     
     return output
