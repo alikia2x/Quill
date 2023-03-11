@@ -4,5 +4,6 @@
         "主页":"/",
         "关于":"/about"
     },
-    "posts_per_page": 10
+    "posts_per_page": 10,
+    "copyright":"©2023 Yourname"
 }
