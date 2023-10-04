@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body style="margin: 0; background-color: #EBECF0;">
+    <div class="app">
+        <h1 class="main_title">{{ title }}</h1>
+        {% if page == 1 %}
+        <span style="margin-left: .4rem;">Here {{ "is" if page == 1 else "are"}} newest {{ per_page }} articles.</span>
+        {% else %}
+        <span style="margin-left: .4rem;">Page {{ page }}/{{ total_pages }}, {{ per_page }} articles per page.</span>
+        {% endif %}
+
+        <ul class="articles_box">
+            {% for article in articles %}
+            <li class="article">
+                <h2 class="article_title">
+                    <a href="{{ url_for('article', id=article['id']) }}" class="article_link">{{ article['title'] }}</a>
+                </h2>
+                <span class="time">{{ article['modify_time'] }}</span>
+                <div class="preview">
+                    {{ article['summary'] }}.
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean quis commodo purus. Nam non sem varius, sodales eros quis, feugiat nisl. Nullam porttitor est non lacinia venenatis.
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <span style="margin-left: .4rem;">Quill 2.0.1-beta, query took {{ res_time }} ms.</span>
+    </div>
+
+</body>
+</html>
