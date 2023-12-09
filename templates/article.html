@@ -1,12 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ lang }}">
 <head>
-    <title>文章详情</title>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='article.css') }}">
 </head>
 <body>
-    <h1>文章详情</h1>
-    <div>
-        {{ content | safe }}
+    <div class="header">
+        <a class="site_title" href="{{ homepage }}">{{ site_title }}</a>
+    </div>
+    <div class="app">
+        <h1 class="title">{{ title }}</h1>
+        <div class="article">
+            {{ content | safe }}
+        </div>
+        <div style="margin-left: .4rem;">轻羽 2.0.1-beta | 处理耗时 {{ res_time }} ms.</div>
     </div>
 </body>
 </html>

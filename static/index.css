@@ -1,3 +1,8 @@
+body{
+    margin: 0;
+    background-color: #EBECF0;
+}
+
 .main_title {
     font-size: 3rem;
     line-height: 4rem;
@@ -13,6 +18,7 @@
     height: fit-content;
     overflow-y: auto;
     overflow-x: hidden;
+    padding-bottom: 3.5rem;
 }
 
 .article {
@@ -23,8 +29,8 @@
     position: relative;
     margin: 0rem 1.5rem 3rem 1.5rem;
     border-radius: .7rem;
-    box-shadow: -5px -5px 20px white,
-        5px 5px 20px #BABECC;
+    box-shadow: -5px -5px 20px white, 5px 5px 20px #BABECC;
+    transition: .15s;
 }
 
 .articles_box {
@@ -45,6 +51,15 @@
 
 .article_link:hover {
     color: #0880a1;
+}
+
+.page_link {
+    text-decoration: none;
+    color: #0e5b79;
+}
+
+.page_link:hover {
+    color: #02222f;
 }
 
 .time {

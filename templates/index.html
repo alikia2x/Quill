@@ -4,13 +4,22 @@
     <title>{{ title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
-<body style="margin: 0; background-color: #EBECF0;">
+<body>
     <div class="app">
         <h1 class="main_title">{{ title }}</h1>
         {% if page == 1 %}
-        <span style="margin-left: .4rem;">Here {{ "is" if page == 1 else "are"}} newest {{ per_page }} articles.</span>
+        <div style="margin-left: .4rem;">以下为最新 {{ per_page }} 篇文章</div><br>
         {% else %}
-        <span style="margin-left: .4rem;">Page {{ page }}/{{ total_pages }}, {{ per_page }} articles per page.</span>
+        <div style="margin-left: .4rem;">第 {{ page }}/{{ total_pages }} 页</div><br>
+        {% endif %}
+
+        {% if page <= 1 and total_pages > 1 %}
+        <a style="margin-left: .4rem;" href="/?page={{ page+1 }}&per_page={{ per_page }}" class="page_link">下一页</a>
+        {% elif page < total_pages %}
+        <a style="margin-left: .4rem;" href="/?page={{ page-1 }}&per_page={{ per_page }}" class="page_link">上一页</a>
+        <a style="margin-left: .4rem;" href="/?page={{ page+1 }}&per_page={{ per_page }}" class="page_link">下一页</a>
+        {% elif page == total_pages and total_pages > 1 %}
+        <a style="margin-left: .4rem;" href="/?page={{ page-1 }}&per_page={{ per_page }}" class="page_link">上一页</a>
         {% endif %}
 
         <ul class="articles_box">
@@ -19,16 +28,24 @@
                 <h2 class="article_title">
                     <a href="{{ url_for('article', id=article['id']) }}" class="article_link">{{ article['title'] }}</a>
                 </h2>
-                <span class="time">{{ article['modify_time'] }}</span>
-                <div class="preview">
-                    {{ article['summary'] }}.
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean quis commodo purus. Nam non sem varius, sodales eros quis, feugiat nisl. Nullam porttitor est non lacinia venenatis.
-                </div>
+                <div class="time">{{ article['modify_time'] }}</div>
+                <div class="preview">{{ article['summary'] }}</div>
             </li>
             {% endfor %}
         </ul>
-        <span style="margin-left: .4rem;">Quill 2.0.1-beta, query took {{ res_time }} ms.</span>
+        <duv style="margin-left: .4rem;">轻羽 2.0.1-beta | 查询耗时 {{ res_time }} ms.</duv>
     </div>
+    <script>
+        const articleLinks = document.querySelectorAll('.article_link');
+        articleLinks.forEach(articleLink => {
+            articleLink.addEventListener('mouseover', () => {
+                articleLink.parentNode.parentNode.style.boxShadow="-2px -2px 5px #f2f3f6, 2px 2px 5px #BABECC";
+            });
 
+            articleLink.addEventListener('mouseout', () => {
+                articleLink.parentNode.parentNode.style.boxShadow="-5px -5px 20px white, 5px 5px 20px #BABECC";
+            });
+        });
+    </script>
 </body>
 </html>
