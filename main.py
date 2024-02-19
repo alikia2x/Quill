@@ -3,7 +3,7 @@ import sqlite3
 import markdown
 import time
 from flask import Flask, render_template, request, jsonify
-
+from markdown.extensions import toc
 
 app = Flask(__name__)
 # 数据库文件
@@ -31,7 +31,15 @@ def get_config(key, subkey="value"):
 
 
 def time_cost(t):
-    return str(round((time.time() - t) * 1000, 3))
+    cost=time.time()-t
+    if cost<0.001:
+        return round(cost*1000,3)
+    elif 0.01>cost>=0.001:
+        return round(cost*1000,3)
+    elif 0.1>cost>=0.01:
+        return round(cost*1000,2)
+    else:
+        return round(cost,1)
 
 
 # 首页路由
@@ -49,14 +57,33 @@ def index():
     page = max(1, min(page, total_pages))
     per_page = max(1, min(per_page, total))
 
-    # 查询数据库，按modify_time降序排列，获取最新的文章
-    query = "SELECT id, title, modify_time, summary FROM articles ORDER BY modify_time DESC LIMIT ? OFFSET ?"
+    # 查询数据库，按modified降序排列，获取最新的文章
+    query = "SELECT id, title, modified, summary FROM articles ORDER BY modified DESC LIMIT ? OFFSET ?"
     articles = query_db(query, (per_page, (page - 1) * per_page))
 
     title = get_config("site_title")
 
+    font_choosen = get_config("font")
+    if not font_choosen:
+        font_choosen = "sans-serif"
+
     return render_template('index.html', articles=articles, res_time=time_cost(t), title=title,
-                           page=page, per_page=per_page, total_pages=total_pages)
+                           page=page, per_page=per_page, total_pages=total_pages, lang=get_config("lang"),
+                           font=font_choosen)
+
+#对于所有/article/<name>的路由，如果name对应文件在./assets存在，则读取并返回该文件（限图片）
+@app.route('/article/<name>', methods=['GET'])
+def static_file(name):
+    # 在./assets中查找文件  
+        # 判断目标文件是否为媒体文件
+        if name.endswith(".jpg") or name.endswith(".png") or name.endswith(".gif") or name.endswith(".jpeg"):
+            # read file and return it with a proper mimetype
+            import magic
+            mime = magic.Magic(mime=True)
+            mime = mime.from_file('./assets/' + name)
+            with open('./assets/' + name, 'rb') as f:
+                return f.read(), 200, {'Content-Type': mime}
+
 
 
 # 文章详情页路由
@@ -68,10 +95,31 @@ def article(id):
 
     if article_detail:
         # 将Markdown渲染为HTML
-        html_content = markdown.markdown(article_detail['content'], extensions=['pymdownx.extra','markdown_del_ins','pymdownx.superfences','pymdownx.highlight'])
+        html_content = markdown.markdown(article_detail['content'],
+                                         extensions=['toc', 'pymdownx.extra', 'pymdownx.superfences',
+                                                     'pymdownx.highlight', 'pymdownx.arithmatex'],
+                                         extension_configs={
+                                             'pymdownx.highlight': {
+                                                 'linenums': True,
+                                                 'use_pygments': True,
+                                                 'linenums_style': "pymdownx-inline"
+                                             },
+                                             "toc": {
+                                                 'permalink': '',
+                                                 'permalink_leading': True,
+                                                 'slugify': toc.slugify_unicode,
+                                                 'toc_class': "headerlink"
+                                             }
+                                         }
+                                         )
+        font_choosen = get_config("font")
+        if not font_choosen:
+            font_choosen = "sans-serif"
+        cost = time_cost(t)
         return render_template('article.html', content=html_content, title=article_detail['title'],
                                site_title=get_config("site_title"), homepage=get_config("homepage"),
-                               res_time=time_cost(t), lang=get_config("lang"))
+                               res_time=cost, lang=get_config("lang"), font=font_choosen,
+                               math=get_config("useMath"))
     else:
         return render_template('404.html'), 404
 
@@ -103,4 +151,4 @@ def create_article():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True, port=5501)

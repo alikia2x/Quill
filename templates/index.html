@@ -1,51 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang={{ lang }}>
 <head>
     <title>{{ title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;">
     <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
-<body>
-    <div class="app">
-        <h1 class="main_title">{{ title }}</h1>
-        {% if page == 1 %}
-        <div style="margin-left: .4rem;">以下为最新 {{ per_page }} 篇文章</div><br>
-        {% else %}
-        <div style="margin-left: .4rem;">第 {{ page }}/{{ total_pages }} 页</div><br>
-        {% endif %}
+<body style="font-family: {{ font }}">
+<div class="app">
+    <h1 class="main_title">{{ title }}</h1>
+    {% if page == 1 %}
+        <div class="text">以下为最新 {{ per_page }} 篇文章</div><br>
+    {% else %}
+        <div class="text">第 {{ page }}/{{ total_pages }} 页</div><br>
+    {% endif %}
 
-        {% if page <= 1 and total_pages > 1 %}
-        <a style="margin-left: .4rem;" href="/?page={{ page+1 }}&per_page={{ per_page }}" class="page_link">下一页</a>
-        {% elif page < total_pages %}
-        <a style="margin-left: .4rem;" href="/?page={{ page-1 }}&per_page={{ per_page }}" class="page_link">上一页</a>
-        <a style="margin-left: .4rem;" href="/?page={{ page+1 }}&per_page={{ per_page }}" class="page_link">下一页</a>
-        {% elif page == total_pages and total_pages > 1 %}
-        <a style="margin-left: .4rem;" href="/?page={{ page-1 }}&per_page={{ per_page }}" class="page_link">上一页</a>
-        {% endif %}
+    {% if page <= 1 and total_pages > 1 %}
+        <a href="/?page={{ page + 1 }}&per_page={{ per_page }}" class="page_link">下一页</a>
+    {% elif page < total_pages %}
+        <a href="/?page={{ page-1 }}&per_page={{ per_page }}" class="page_link">上一页</a>
+        <a href="/?page={{ page + 1 }}&per_page={{ per_page }}" class="page_link">下一页</a>
+    {% elif page == total_pages and total_pages > 1 %}
+        <a href="/?page={{ page-1 }}&per_page={{ per_page }}" class="page_link">上一页</a>
+    {% endif %}
 
-        <ul class="articles_box">
-            {% for article in articles %}
+    <ul class="articles_box">
+        {% for article in articles %}
             <li class="article">
                 <h2 class="article_title">
                     <a href="{{ url_for('article', id=article['id']) }}" class="article_link">{{ article['title'] }}</a>
                 </h2>
-                <div class="time">{{ article['modify_time'] }}</div>
+                <div class="time">{{ article['modified'] }}</div>
                 <div class="preview">{{ article['summary'] }}</div>
             </li>
-            {% endfor %}
-        </ul>
-        <duv style="margin-left: .4rem;">轻羽 2.0.1-beta | 查询耗时 {{ res_time }} ms.</duv>
-    </div>
-    <script>
-        const articleLinks = document.querySelectorAll('.article_link');
-        articleLinks.forEach(articleLink => {
-            articleLink.addEventListener('mouseover', () => {
-                articleLink.parentNode.parentNode.style.boxShadow="-2px -2px 5px #f2f3f6, 2px 2px 5px #BABECC";
-            });
-
-            articleLink.addEventListener('mouseout', () => {
-                articleLink.parentNode.parentNode.style.boxShadow="-5px -5px 20px white, 5px 5px 20px #BABECC";
-            });
+        {% endfor %}
+    </ul>
+    <duv class="text">轻羽 2.4.1-beta | 查询耗时 {{ res_time }} ms.</duv>
+</div>
+<script>
+    const articleLinks = document.querySelectorAll('.article_link');
+    articleLinks.forEach(articleLink => {
+        articleLink.addEventListener('mouseover', () => {
+            articleLink.parentNode.parentNode.classList.add('article_pressed');
         });
-    </script>
+
+        articleLink.addEventListener('mouseout', () => {
+            articleLink.parentNode.parentNode.classList.remove('article_pressed');
+        });
+    });
+</script>
 </body>
 </html>
