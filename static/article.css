@@ -74,7 +74,7 @@ body {
     padding: .5rem 2.5rem;
     height: fit-content;
     position: relative;
-    margin: 0 1.5rem 3rem 1.5rem;
+    margin: 0 1.5rem 3rem;
     border-radius: .7rem;
     box-shadow: -5px -5px 20px white, 5px 5px 20px #BABECC;
     transition: .15s;
